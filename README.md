@@ -1,36 +1,17 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tax & Investment Country Comparison Tool
 
-## Getting Started
+## This is a tool to help you figure out where to live and invest based on your personal income and tax situation.
 
-First, run the development server:
+Today allows for developers, it professionals and people working remotely to relocate to another country that is more benificial for them on a tax, investment and life quality perspective.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+I've just built this simple calculator for you to help you figure out where to live and invest based on your personal income and tax situation.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Some countries have much lower income tax rates than others, and some countries have no income tax at all. This can make a huge difference in how much money you take home each month.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to compare two countries?
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Select your country
+2. Select the country you are considering
+3. add income tax, social security costs, dividend tax, capital gains tax, property tax, sales tax and so on.
+4. Set the amount of money you want to invest each month. Your starting capital and saving horizon.
+5. Click calculate and the the result.
