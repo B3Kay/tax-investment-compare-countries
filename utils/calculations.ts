@@ -1,33 +1,38 @@
-interface Country {
-  name: string
-  taxRate: number
-  socialSecurityRate: number
-  dividendTaxRate: number
-  isISK: boolean
-  iskRate?: number
+export interface Country {
+  name: string;
+  taxRate: number; // in percentage
+  socialSecurityRate: number; // in percentage or fixed
+  dividendTaxRate: number; // in percentage
+  isISK: boolean;
+  iskRate?: number; // optional, as it applies only if `isISK` is true
 }
 
-interface Scenario {
-  name: string
-  rate: number
+export interface Scenario {
+  name: string;
+  rate: number; // annual rate of return in percentage
 }
 
-interface FormData {
-  annualIncome: number
-  investmentPercentage: number
-  startingInvestment: number
-  timeHorizon: number
-  countries: Country[]
-  includeExtraCosts: boolean
-  extraCosts: { [key: string]: number }
-  scenarios: Scenario[]
-  selectedScenario: string
-  currency: string
-  incomeType: string
-  socialSecurityType: { [key: string]: string }
+export interface ComparisonFormData {
+  annualIncome: number; // annual income in the selected currency
+  investmentPercentage: number; // in percentage of net income
+  startingInvestment: number; // initial investment amount
+  timeHorizon: number; // in years
+  countries: Country[];
+  includeExtraCosts: boolean; // flag to include extra costs or not
+  extraCosts: { [countryName: string]: number }; // extra costs per country
+  scenarios: Scenario[];
+  selectedScenario: string; // name of the selected scenario
+  currency: string; // currency used for calculations
+  incomeType: "monthly" | "annual"; // type of income
+  socialSecurityType: { [countryName: string]: "fixed" | "percentage" }; // contribution type per country
 }
 
-export function calculateComparison(formData: FormData) {
+export interface GraphData {
+  year: number; // Explicitly declare `year` as a property
+  [key: string]: number | undefined; // Allow dynamic keys for country-scenario combinations
+}
+
+export function calculateComparison(formData: ComparisonFormData) {
   const {
     annualIncome,
     investmentPercentage,
@@ -41,60 +46,63 @@ export function calculateComparison(formData: FormData) {
     currency,
     incomeType,
     socialSecurityType,
-  } = formData
+  } = formData;
 
-  const graphData = []
+  const graphData: GraphData[] = [];
   const countryResults = countries.map((country) => {
-    const { name, taxRate, socialSecurityRate, dividendTaxRate, isISK, iskRate } = country
-    let socialSecurityContributions
+    const { name, taxRate, socialSecurityRate, dividendTaxRate, isISK, iskRate } = country;
+    let socialSecurityContributions: number;
 
     if (socialSecurityType[name] === "fixed") {
-      socialSecurityContributions = socialSecurityRate * (incomeType === "monthly" ? 12 : 1)
+      socialSecurityContributions = socialSecurityRate * (incomeType === "monthly" ? 12 : 1);
     } else {
-      socialSecurityContributions = annualIncome * (socialSecurityRate / 100)
+      socialSecurityContributions = annualIncome * (socialSecurityRate / 100);
     }
 
-    const taxableIncome = annualIncome - socialSecurityContributions
-    const incomeTax = taxableIncome * (taxRate / 100)
-    const netIncome = annualIncome - incomeTax - socialSecurityContributions
-    const yearlyInvestment = netIncome * (investmentPercentage / 100)
-    const monthlyInvestment = yearlyInvestment / 12
+    const taxableIncome = annualIncome - socialSecurityContributions;
+    const incomeTax = taxableIncome * (taxRate / 100);
+    const netIncome = annualIncome - incomeTax - socialSecurityContributions;
+    const yearlyInvestment = netIncome * (investmentPercentage / 100);
+    const monthlyInvestment = yearlyInvestment / 12;
 
-    const scenarioResults = scenarios.reduce((acc, scenario) => {
-      let totalInvestment = startingInvestment
-      let totalGains = 0
+    const scenarioResults = scenarios.reduce<Record<string, { investmentGains: number; finalNetWorth: number }>>(
+      (acc, scenario) => {
+        let totalInvestment = startingInvestment;
+        let totalGains = 0;
 
-      for (let year = 1; year <= timeHorizon; year++) {
-        const yearlyGain = totalInvestment * (scenario.rate / 100)
-        let taxedGain
+        for (let year = 1; year <= timeHorizon; year++) {
+          const yearlyGain = totalInvestment * (scenario.rate / 100);
+          let taxedGain: number;
 
-        if (isISK) {
-          const iskTax = totalInvestment * (iskRate / 100)
-          taxedGain = yearlyGain - iskTax
-        } else {
-          taxedGain = yearlyGain * (1 - dividendTaxRate / 100)
+          if (isISK && iskRate !== undefined) {
+            const iskTax = totalInvestment * (iskRate / 100);
+            taxedGain = yearlyGain - iskTax;
+          } else {
+            taxedGain = yearlyGain * (1 - dividendTaxRate / 100);
+          }
+
+          totalGains += taxedGain;
+          totalInvestment += yearlyInvestment + taxedGain;
+
+          if (includeExtraCosts && extraCosts[name]) {
+            totalInvestment -= extraCosts[name];
+          }
+
+          if (!graphData[year - 1]) {
+            graphData[year - 1] = { year };
+          }
+          graphData[year - 1][`${name}-${scenario.name}`] = totalInvestment;
         }
 
-        totalGains += taxedGain
-        totalInvestment += yearlyInvestment + taxedGain
+        acc[scenario.name] = {
+          investmentGains: totalGains,
+          finalNetWorth: totalInvestment,
+        };
 
-        if (includeExtraCosts && extraCosts[name]) {
-          totalInvestment -= extraCosts[name]
-        }
-
-        if (!graphData[year - 1]) {
-          graphData[year - 1] = { year }
-        }
-        graphData[year - 1][`${name}-${scenario.name}`] = totalInvestment
-      }
-
-      acc[scenario.name] = {
-        investmentGains: totalGains,
-        finalNetWorth: totalInvestment,
-      }
-
-      return acc
-    }, {})
+        return acc;
+      },
+      {}
+    );
 
     return {
       name,
@@ -104,14 +112,13 @@ export function calculateComparison(formData: FormData) {
       yearlyInvestment,
       monthlyInvestment,
       ...scenarioResults[selectedScenario],
-    }
-  })
+    };
+  });
 
   return {
     countries: countryResults,
     graphData,
     currency,
     incomeType,
-  }
+  };
 }
-

@@ -1,22 +1,27 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import ComparisonForm from "../components/ComparisonForm"
-import ComparisonGraph from "../components/ComparisonGraph"
-import ComparisonSummary from "../components/ComparisonSummary"
-import { calculateComparison } from "../utils/calculations"
+import { useState, useMemo } from "react";
+import ComparisonForm from "../components/ComparisonForm";
+import ComparisonGraph from "../components/ComparisonGraph";
+import ComparisonSummary from "../components/ComparisonSummary";
+import { calculateComparison } from "../utils/calculations";
+
+import type { ComparisonFormData } from "../utils/calculations"; // Ensure this is correctly exported
+// import type { ComparisonResult } from "../types"; // Define a type for `calculateComparison`'s return value
+type ComparisonResult = ReturnType<typeof calculateComparison>;
+
 
 export default function Home() {
-  const [comparisonData, setComparisonData] = useState(null)
-  const [visibleCountries, setVisibleCountries] = useState([])
-  const [visibleScenarios, setVisibleScenarios] = useState([])
+  const [comparisonData, setComparisonData] = useState<ComparisonResult | null>(null);
+  const [visibleCountries, setVisibleCountries] = useState<string[]>([]);
+  const [visibleScenarios, setVisibleScenarios] = useState<string[]>([]);
 
-  const handleComparisonSubmit = (formData) => {
-    const result = calculateComparison(formData)
-    setComparisonData(result)
-    setVisibleCountries(formData.countries.map((c) => c.name))
-    setVisibleScenarios(formData.scenarios.map((s) => s.name))
-  }
+  const handleComparisonSubmit = (formData: ComparisonFormData) => {
+    const result = calculateComparison(formData);
+    setComparisonData(result);
+    setVisibleCountries(formData.countries.map((c) => c.name));
+    setVisibleScenarios(formData.scenarios.map((s) => s.name));
+  };
 
   const memoizedComparisonGraph = useMemo(() => {
     if (comparisonData) {
