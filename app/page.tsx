@@ -6,9 +6,8 @@ import ComparisonGraph from "../components/ComparisonGraph";
 import ComparisonSummary from "../components/ComparisonSummary";
 import { calculateComparison } from "../utils/calculations";
 
-import type { ComparisonFormData } from "../utils/calculations"; // Ensure this is correctly exported
-// import type { ComparisonResult } from "../types"; // Define a type for `calculateComparison`'s return value
-type ComparisonResult = ReturnType<typeof calculateComparison>;
+import type { ComparisonFormData, ComparisonResult } from "../utils/calculations"; // Ensure this is correctly exported
+
 
 
 export default function Home() {
@@ -42,12 +41,11 @@ export default function Home() {
         <ComparisonSummary
           data={comparisonData}
           visibleCountries={visibleCountries}
-          visibleScenarios={visibleScenarios}
         />
       )
     }
     return null
-  }, [comparisonData, visibleCountries, visibleScenarios])
+  }, [comparisonData, visibleCountries])
 
   return (
     <main className="container mx-auto p-4">

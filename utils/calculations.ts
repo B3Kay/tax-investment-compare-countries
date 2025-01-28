@@ -2,6 +2,7 @@ export interface Country {
   name: string;
   taxRate: number; // in percentage
   socialSecurityRate: number; // in percentage or fixed
+  socialSecurityFixed: number;
   dividendTaxRate: number; // in percentage
   isISK: boolean;
   iskRate?: number; // optional, as it applies only if `isISK` is true
@@ -31,6 +32,7 @@ export interface GraphData {
   year: number; // Explicitly declare `year` as a property
   [key: string]: number | undefined; // Allow dynamic keys for country-scenario combinations
 }
+export type ComparisonResult = ReturnType<typeof calculateComparison>;
 
 export function calculateComparison(formData: ComparisonFormData) {
   const {
